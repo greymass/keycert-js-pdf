@@ -1,7 +1,7 @@
 {
     "name": "@greymass/keycert-pdf",
     "description": "Pure JS PDF generation for Anchor Owner Key Certificates",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "homepage": "https://github.com/greymass/@greymass/keycert-pdf",
     "license": "BSD-3-Clause",
     "main": "lib/keycert-pdf.js",
