@@ -47,6 +47,10 @@ export interface Arguments {
      * from a nodeos /v1/chain/get_info call.
      */
     state: ChainState
+    /**
+     * Optional generator version info to be used in the footer, e.g. "Anchor iOS 1.2.3".
+     */
+    versionInfo?: string
 }
 
 export default async function generate(args: Arguments) {
@@ -88,9 +92,33 @@ export default async function generate(args: Arguments) {
     const headTime = TimePointSec.from(state.head_block_time)
     const headNum = UInt32.from(state.head_block_num)
     const headId = Checksum256.from(state.head_block_id)
-    const footer = `Issued ${headTime} at block height ${headNum} - ${headId}`
-    const footerX = 306 - font.widthOfTextAtSize(footer, 6) / 2
-    page.drawText(footer, {x: footerX, y: 71, size: 6, font, color: blue})
+    const footerSize = 6
+    if (args.versionInfo) {
+        const boxH = 37
+        const boxY = 61
+        const lines = [
+            `Issued ${headTime} at block height ${headNum} by ${args.versionInfo}`,
+            `${headId}`,
+        ]
+        const lineHeight = font.heightAtSize(footerSize) * 1.1
+        const totalH = (lines.length - 0.5) * lineHeight
+        const textY = boxY + (boxH / 2 - totalH / 2)
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i]
+            page.drawText(line, {
+                x: page.getWidth() / 2 - font.widthOfTextAtSize(line, footerSize) / 2,
+                y: textY - (i - lines.length + 1) * lineHeight,
+                size: footerSize,
+                font,
+                color: blue,
+                lineHeight,
+            })
+        }
+    } else {
+        const footer = `Issued ${headTime} at block height ${headNum} - ${headId}`
+        const footerX = 306 - font.widthOfTextAtSize(footer, footerSize) / 2
+        page.drawText(footer, {x: footerX, y: 71, size: footerSize, font, color: blue})
+    }
 
     return doc.save()
 }

@@ -4,6 +4,11 @@ import {strict as assert} from 'assert'
 
 import generate, {ChainState} from '../src'
 
+let savePdf = false
+if (typeof process !== 'undefined' && process.env) {
+    savePdf = !!process.env.SAVE_PDF
+}
+
 suite('index', function () {
     test('generate', async function () {
         const cert = KeyCertificate.from(
@@ -14,6 +19,14 @@ suite('index', function () {
             head_block_num: 123456790,
             head_block_time: new Date(),
         }
-        await assert.doesNotReject(generate({cert, state}))
+        const doGenerate = async () => {
+            const pdf = await generate({cert, state, versionInfo: 'Test suite 1.2.3'})
+            if (savePdf) {
+                // eslint-disable-next-line @typescript-eslint/no-var-requires
+                require('fs').writeFileSync('test.pdf', pdf)
+            }
+        }
+
+        await assert.doesNotReject(doGenerate())
     })
 })
